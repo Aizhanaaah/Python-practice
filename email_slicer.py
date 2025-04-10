@@ -1,30 +1,47 @@
-#email slicing
+from fastapi import FastAPI
+from fastapi.params import Body
+from pydantic import BaseModel
+from typing import Optional
+from random import randrange
 
-email = input("Enter your email: ")
-#aijanamanova22@gmail.com
-index = email.index("@")
-username = email[:index]
-domain = email[index + 1:]
 
-print(f"Your username is {username} and domain is {domain}")
+class Post(BaseModel):
+    title: str
+    content: str
+    published: bool = True
+    rating : Optional[int] = None
 
-#name slicing
+app = FastAPI()
 
-name = input("Please type your full name: ")
-index = name.index(" ")
-firstName = name[:index]
-lastName = name[index+1:]
-print(f"first name is {firstName}")
-print(f"last name is {lastName}")
+inputs = [{"Name" : "Peak Lenin", "City" : "Bishkek", "price":5000, "id" : 1}, {"Name" : "Tian-Shan", "City" : "Naryn", "price" : 3800, "id" : 2}]
 
-#remove the first and last characters:
+def findpost(id):
+    for p in inputs:
+        if p["id"] == id:
+            return p
 
-word = input("write a word:")
-removed = word[1:-1]
-print(f"first and last char is removed: {removed}")
+@app.get("/")
+def home():
+    return {"message": "Hello! Welcome to Alps, and discover breathtaking places in Kyrgyzstan"}
 
-#extract a certain word python:
+@app.get("/post")
+def content():
+    return {"inputs" : inputs}
 
-sentence = 'i love programming in python'
-pythonIndex = sentence.index('python')
-print(f"extracted word: {sentence[pythonIndex]}")
+
+@app.post("/createpost")
+def create(post: Post):
+    post_dict = post.dict()
+    for item in inputs:
+        if item.get("title") == post_dict["title"] and item.get("content") == post_dict["content"]:
+            return {"message": "This post already exists."}
+    post_dict["id"] = randrange(0, 10000000)
+    inputs.append(post_dict)
+    return {"data": post_dict}
+
+@app.get("/post/{id}")
+def get_post(id):
+    print(type(id))
+    post = findpost(id)
+    print(post)
+    return {"post_detail" : post}
