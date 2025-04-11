@@ -6,9 +6,9 @@ from random import randrange
 
 
 class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
+    Name: str
+    City: str
+    price: int
     rating : Optional[int] = None
 
 app = FastAPI()
@@ -33,15 +33,14 @@ def content():
 def create(post: Post):
     post_dict = post.dict()
     for item in inputs:
-        if item.get("title") == post_dict["title"] and item.get("content") == post_dict["content"]:
+        if item.get("Name") == post_dict["Name"] and item.get("City") == post_dict["City"]:
             return {"message": "This post already exists."}
     post_dict["id"] = randrange(0, 10000000)
     inputs.append(post_dict)
     return {"data": post_dict}
 
 @app.get("/post/{id}")
-def get_post(id):
-    print(type(id))
+def get_post(id: int):
     post = findpost(id)
     print(post)
     return {"post_detail" : post}
