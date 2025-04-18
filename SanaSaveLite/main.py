@@ -1,39 +1,42 @@
+import pandas as pd
 import csv
 from datetime import datetime
-import pandas as pd
+import os
+
+filename = 'transactions.csv'
 
 
-def add_transaction(date, type_, category, amount, note=''):
-    if type_ not in ('income', 'expense'):
+if not os.path.exists(filename):
+    df = pd.DataFrame(columns=["Date", "Type", "Amount", "Category", "Comment"])
+    df.to_csv(filename, index=False)
+
+
+
+def add_transactions():
+    date = datetime.now().strftime('%Y-%m-%d')
+    t_type = input("Income or Expense? ").lower()
+    if t_type not in ('income', 'expense'):
         raise ValueError("'type' has to be either 'income' or 'expense'")
-    
-
-    try:
-        amount=float(amount)
-    except ValueError:
-        raise ValueError("'amount' has to be a number")
+    if t_type == 'income':
+        amount = float(input('What is your income?'))
+        category = input('What is the source? ')
+    elif t_type == 'expence':
+        amount = float(input('What is your expense? ')) 
+        category = input('What is the category? ')
     if amount <= 0:
         raise ValueError("'amount' has to be a positive number")
     
-    try:
-        datetime.strptime(date, "%Y-%m-%d")
-    except ValueError:
-        raise ValueError("'Date' has to be in a format 'YYYY-MM-DD' ")
+
+    comment = input('Add notes (optional)')
     
-    with open('Data/transactions.csv', mode="a", newline="", encoding='utf-8') as file:
+
+
+
+    with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([date, type_, category, amount, note])
-    print('the transaction is added!')
+        writer.writerow([date, t_type, amount, category, comment])
+        print('transactions are added!')
 
 
-print('Enter the date:')
-date = input()
-print('Enter type: income or expense?')
-type_ = input()
-print('Enter the category:')
-category = input()
-print('Enter the amount:')
-amount = input()
-print('Write some notes, (optional)')
-note = input()    
-add_transaction(date, type_, category, amount, note)
+add_transactions()
+df = pd.read_csv('transactions.csv')
