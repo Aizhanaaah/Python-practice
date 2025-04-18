@@ -20,7 +20,7 @@ def add_transactions():
     if t_type == 'income':
         amount = float(input('What is your income?'))
         category = input('What is the source? ')
-    elif t_type == 'expence':
+    elif t_type == 'expense':
         amount = float(input('What is your expense? ')) 
         category = input('What is the category? ')
     if amount <= 0:
@@ -40,3 +40,9 @@ def add_transactions():
 
 add_transactions()
 df = pd.read_csv('transactions.csv')
+
+total_income = df[df['Type'] == 'income']['Amount'].sum()
+total_expense = df[df['Type'] == 'expense']['Amount'].sum()
+
+print(f"Total income: {total_income}")
+print(f"Total expense: {total_expense}")
