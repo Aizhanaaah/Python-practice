@@ -48,13 +48,30 @@ print(f"Total income: {total_income}")
 print(f"Total expense: {total_expense}")
 
 category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
-print("\n📊 Report by Category:")
+print("\nReport by Category:")
 print(category_report)
 
 
 top_expenses = df[df['Type'] == 'expense'].sort_values(by='Amount', ascending=False).head(5)
-print("\n💸 Top Expenses:")
+print("\nTop Expenses:")
 print(top_expenses[['Date', 'Category', 'Amount', 'Comment']])
 
 current_month = datetime.now().month
 current_year = datetime.now().year
+
+df_filtered_income = df[
+    (pd.to_datetime(df['Date']).dt.month == current_month) &
+    (pd.to_datetime(df['Date']).dt.year == current_year) &
+    (df['Type'] == 'income')
+]
+
+df_filtered_expense = df[
+    (pd.to_datetime(df['Date']).dt.month == current_month) &
+    (pd.to_datetime(df['Date']).dt.year == current_year) &
+    (df['Type'] == 'expense')
+]
+
+
+current_month_income = df_filtered_income['Amount'].sum()
+current_month_expense = df_filtered_expense['Amount'].sum()
+print(f'Your worth in current month: {current_month_income-current_month_expense} ')
