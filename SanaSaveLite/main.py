@@ -46,3 +46,15 @@ total_expense = df[df['Type'] == 'expense']['Amount'].sum()
 
 print(f"Total income: {total_income}")
 print(f"Total expense: {total_expense}")
+
+category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
+print("\n📊 Report by Category:")
+print(category_report)
+
+
+top_expenses = df[df['Type'] == 'expense'].sort_values(by='Amount', ascending=False).head(5)
+print("\n💸 Top Expenses:")
+print(top_expenses[['Date', 'Category', 'Amount', 'Comment']])
+
+current_month = datetime.now().month
+current_year = datetime.now().year
