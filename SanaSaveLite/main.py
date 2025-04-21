@@ -11,7 +11,6 @@ if not os.path.exists(filename):
     df.to_csv(filename, index=False)
 
 
-
 def add_transactions():
     date = datetime.now().strftime('%Y-%m-%d')
     t_type = input("Income or Expense? ").lower()
@@ -30,8 +29,6 @@ def add_transactions():
     comment = input('Add notes (optional)')
     
 
-
-
     with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([date, t_type, amount, category, comment])
@@ -48,12 +45,12 @@ print(f"Total income: {total_income}")
 print(f"Total expense: {total_expense}")
 
 category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
-print("\nReport by Category:")
+print("\n📊 Report by Category:")
 print(category_report)
 
 
 top_expenses = df[df['Type'] == 'expense'].sort_values(by='Amount', ascending=False).head(5)
-print("\nTop Expenses:")
+print("\n💸 Top Expenses:")
 print(top_expenses[['Date', 'Category', 'Amount', 'Comment']])
 
 current_month = datetime.now().month
@@ -75,3 +72,15 @@ df_filtered_expense = df[
 current_month_income = df_filtered_income['Amount'].sum()
 current_month_expense = df_filtered_expense['Amount'].sum()
 print(f'Your worth in current month: {current_month_income-current_month_expense} ')
+
+
+
+def show_recent_data():
+
+    week = df[['Amount'].sum()].tail(7)
+    print(f"the data in the last week: \n {week}")
+    month = df[['Amount'].sum()].tail(30)
+    print(f"the data in the last month: \n {month}")
+
+show_recent_data() 
+
