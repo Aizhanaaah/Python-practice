@@ -79,10 +79,12 @@ print(f'Your worth in current month: {current_month_income-current_month_expense
 
 def show_recent_data():
 
-    week = df[['Amount'].sum()].tail(7)
+    week = df['Amount'].sum().tail(7)
     print(f"the data in the last week: \n {week}")
-    month = df[['Amount'].sum()].tail(30)
+    month = df['Amount'].sum().tail(30)
     print(f"the data in the last month: \n {month}")
+
+mean_value_income = df[df['Type'] == 'income']['Amount'].sum()/len(df[df['Type'] == 'income'])
 
 show_recent_data() 
 
