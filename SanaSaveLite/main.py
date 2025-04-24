@@ -1,9 +1,10 @@
 import pandas as pd
-import numpy as np
-import matplotlib as plt
 import csv
 from datetime import datetime
 import os
+
+
+
 
 filename = 'transactions.csv'
 
@@ -78,13 +79,29 @@ print(f'Your worth in current month: {current_month_income-current_month_expense
 
 
 def show_recent_data():
+    today = pd.to_datetime(datetime.now())
+    last_week_data = today - pd.Timedelta(days=7)
+    last_month_data = today - pd.Timedelta(days=30)
+    df['Date'] = pd.to_datetime(df['Date']) 
+    df_last_week = df[df['Date'] >= last_week_data]
+    df_last_month = df[df['Date'] >= last_month_data]
 
-    week = df['Amount'].sum().tail(7)
-    print(f"the data in the last week: \n {week}")
-    month = df['Amount'].sum().tail(30)
-    print(f"the data in the last month: \n {month}")
+    week_income = df_last_week[df_last_week['Type'] == 'income']['Amount'].sum()
+    week_expense = df_last_week[df_last_week['Type'] == 'expense']['Amount'].sum()
+    month_income = df_last_month[df_last_month['Type'] == 'income']['Amount'].sum()
+    month_expense = df_last_month[df_last_month['Type'] == 'expense']['Amount'].sum()
+    print(f"📅 Last 7 days:\n   Income: {week_income} | Expense: {week_expense}")
+    print(f"📅 Last 30 days:\n   Income: {month_income} | Expense: {month_expense}")
+
+
 
 mean_value_income = df[df['Type'] == 'income']['Amount'].sum()/len(df[df['Type'] == 'income'])
+
+print(f'your average income: {mean_value_income}')
+
+exceeded_expense = 10000
+if exceeded_expense <=  df[df['Type'] == 'expense']['Amount'].sum():
+    print('Your spending limit is too high, please cut your expenses!!!')
 
 show_recent_data() 
 
