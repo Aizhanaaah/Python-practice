@@ -27,11 +27,7 @@ def add_transactions():
         category = input('What is the category? ')
     if amount <= 0:
         raise ValueError("'amount' has to be a positive number")
-    
-
     comment = input('Add notes (optional)')
-    
-
     with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([date, t_type, amount, category, comment])
@@ -41,41 +37,17 @@ def add_transactions():
 add_transactions()
 df = pd.read_csv('transactions.csv')
 
-total_income = df[df['Type'] == 'income']['Amount'].sum()
-total_expense = df[df['Type'] == 'expense']['Amount'].sum()
 
-print(f"Total income: {total_income}")
-print(f"Total expense: {total_expense}")
-
-category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
-print("\n📊 Report by Category:")
-print(category_report)
+def show_category_report():
+    category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
+    print("\n📊 Report by Category:")
+    print(category_report)
 
 
-top_expenses = df[df['Type'] == 'expense'].sort_values(by='Amount', ascending=False).head(5)
-print("\n💸 Top Expenses:")
-print(top_expenses[['Date', 'Category', 'Amount', 'Comment']])
-
-current_month = datetime.now().month
-current_year = datetime.now().year
-
-df_filtered_income = df[
-    (pd.to_datetime(df['Date']).dt.month == current_month) &
-    (pd.to_datetime(df['Date']).dt.year == current_year) &
-    (df['Type'] == 'income')
-]
-
-df_filtered_expense = df[
-    (pd.to_datetime(df['Date']).dt.month == current_month) &
-    (pd.to_datetime(df['Date']).dt.year == current_year) &
-    (df['Type'] == 'expense')
-]
-
-
-current_month_income = df_filtered_income['Amount'].sum()
-current_month_expense = df_filtered_expense['Amount'].sum()
-print(f'Your worth in current month: {current_month_income-current_month_expense} ')
-
+def show_top_expenses():
+    top_expenses = df[df['Type'] == 'expense'].sort_values(by='Amount', ascending=False).head(5)
+    print("\n💸 Top Expenses:")
+    print(top_expenses[['Date', 'Category', 'Amount', 'Comment']])
 
 
 def show_recent_data():
@@ -94,10 +66,13 @@ def show_recent_data():
     print(f"📅 Last 30 days:\n   Income: {month_income} | Expense: {month_expense}")
 
 
+def show_means():
+    mean_value_income = df[df['Type'] == 'income']['Amount'].sum()/len(df[df['Type'] == 'income'])
+    print(f'your average income: {mean_value_income}')
+    mean_value_expense = df[df['Type'] == 'expense']['Amount'].sum()/len(df[df['Type'] == 'expense'])
+    print(f'your average expense: {mean_value_expense}')
 
-mean_value_income = df[df['Type'] == 'income']['Amount'].sum()/len(df[df['Type'] == 'income'])
 
-print(f'your average income: {mean_value_income}')
 
 exceeded_expense = 10000
 if exceeded_expense <=  df[df['Type'] == 'expense']['Amount'].sum():
