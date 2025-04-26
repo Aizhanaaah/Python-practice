@@ -1,10 +1,10 @@
 import pandas as pd
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-import random
+import random 
 
 
 
@@ -12,10 +12,35 @@ filename = 'transactions.csv'
 
 
 if not os.path.exists(filename):
-    df = pd.DataFrame(columns=["Date", "Type", "Amount", "Category", "Comment"])
+    df = pd.DataFrame(columns=["Date", "Type", "Amount", "Category"])
     df.to_csv(filename, index=False)
 
 
+def generate_randome_data():
+    Type_ = [random.choice(['income', 'expense']) for i in range(5)]
+    if df[Type_] == 'income':
+        CategoriesIncome = ['salary', 'freelance', 'scholarhsip', 'business', 'gift', 'rental income', 'stock divident']
+        Category = [random.choice(CategoriesIncome) for i in range(100)]
+    elif df[Type_] == 'expense':
+        CategoriesExpense = ['grocery', 'charity', 'education', 'entertainment', 'rent', 'utilities', 'health care', 'taxes', 'transportation', 'self care']
+        Category = [random.choice(CategoriesExpense) for i in range(100)]
+    start_date = datetime(2020, 1, 1)
+    end_date = datetime(2025, 12, 31)
+    Amount = random.sample(range(1, 999999), 100)
+    Date = []
+    for i in range(100):
+        delta = end_date - start_date
+        random_days = random.randint(0, delta.days)
+        Date.append(start_date + timedelta(days=random_days))
+    return [date.strftime("%Y-%m-%d") for date in Date]
+
+    with open(filename, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([Date, Type_, Amount, Category])
+        print('transactions are added!')
+    
+
+'''
 def add_transactions():
     date = datetime.now().strftime('%Y-%m-%d')
     t_type = input("Income or Expense? ").lower()
@@ -37,6 +62,9 @@ def add_transactions():
 
 
 add_transactions()
+'''
+generate_randome_data()
+
 df = pd.read_csv('transactions.csv')
 
 
@@ -59,7 +87,6 @@ def show_recent_data():
     df['Date'] = pd.to_datetime(df['Date']) 
     df_last_week = df[df['Date'] >= last_week_data]
     df_last_month = df[df['Date'] >= last_month_data]
-
     week_income = df_last_week[df_last_week['Type'] == 'income']['Amount'].sum()
     week_expense = df_last_week[df_last_week['Type'] == 'expense']['Amount'].sum()
     month_income = df_last_month[df_last_month['Type'] == 'income']['Amount'].sum()
