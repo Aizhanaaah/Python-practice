@@ -4,6 +4,8 @@ from datetime import datetime
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import random
+
 
 
 filename = 'transactions.csv'
