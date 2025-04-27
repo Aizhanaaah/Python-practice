@@ -16,29 +16,32 @@ if not os.path.exists(filename):
     df.to_csv(filename, index=False)
 
 
-def generate_randome_data():
-    Type_ = [random.choice(['income', 'expense']) for i in range(5)]
-    if df[Type_] == 'income':
-        CategoriesIncome = ['salary', 'freelance', 'scholarhsip', 'business', 'gift', 'rental income', 'stock divident']
-        Category = [random.choice(CategoriesIncome) for i in range(100)]
-    elif df[Type_] == 'expense':
-        CategoriesExpense = ['grocery', 'charity', 'education', 'entertainment', 'rent', 'utilities', 'health care', 'taxes', 'transportation', 'self care']
-        Category = [random.choice(CategoriesExpense) for i in range(100)]
+def generate_randome_data(rows = 100):
+    CategoriesIncome = ['salary', 'freelance', 'scholarhsip', 'business', 'gift', 'rental income', 'stock divident']
+    CategoriesExpense = ['grocery', 'charity', 'education', 'entertainment', 'rent', 'utilities', 'health care', 'taxes', 'transportation', 'self care']
     start_date = datetime(2020, 1, 1)
     end_date = datetime(2025, 12, 31)
-    Amount = random.sample(range(1, 999999), 100)
-    Date = []
-    for i in range(100):
+    all_data = []
+    for i in range(rows):
         delta = end_date - start_date
         random_days = random.randint(0, delta.days)
-        Date.append(start_date + timedelta(days=random_days))
-    return [date.strftime("%Y-%m-%d") for date in Date]
+        date = (start_date + timedelta(days=random_days)).strftime('%Y-%m-%d')
+
+        type_ = random.choice(['income', 'expense'])
+        amount = round(random.uniform(1, 1000000), 2)
+
+        if type_ == 'income':
+            category = random.choice(CategoriesIncome)
+        elif type_ == 'expense':
+            category = random.choice(CategoriesExpense)
+
+        all_data.append([date, type_, amount, category])
 
     with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([Date, Type_, Amount, Category])
-        print('transactions are added!')
-    
+        writer.writerow(all_data)
+        print('transactions are added!') 
+        
 
 '''
 def add_transactions():
