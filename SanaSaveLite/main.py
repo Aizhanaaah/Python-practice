@@ -21,25 +21,22 @@ def generate_randome_data(rows = 100):
     CategoriesExpense = ['grocery', 'charity', 'education', 'entertainment', 'rent', 'utilities', 'health care', 'taxes', 'transportation', 'self care']
     start_date = datetime(2020, 1, 1)
     end_date = datetime(2025, 12, 31)
-    all_data = []
-    for i in range(rows):
-        delta = end_date - start_date
-        random_days = random.randint(0, delta.days)
-        date = (start_date + timedelta(days=random_days)).strftime('%Y-%m-%d')
-
-        type_ = random.choice(['income', 'expense'])
-        amount = round(random.uniform(1, 1000000), 2)
-
-        if type_ == 'income':
-            category = random.choice(CategoriesIncome)
-        elif type_ == 'expense':
-            category = random.choice(CategoriesExpense)
-
-        all_data.append([date, type_, amount, category])
-
     with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(all_data)
+        for i in range(rows):
+            delta = end_date - start_date
+            random_days = random.randint(0, delta.days)
+            date = (start_date + timedelta(days=random_days)).strftime('%Y-%m-%d')
+
+            type_ = random.choice(['income', 'expense'])
+            amount = round(random.uniform(1, 1000000), 2)
+
+            if type_ == 'income':
+                category = random.choice(CategoriesIncome)
+            elif type_ == 'expense':
+                category = random.choice(CategoriesExpense)
+
+            writer.writerow([date, type_, amount, category])
         print('transactions are added!')
     
 
@@ -126,7 +123,18 @@ def show_means(df):
 
 
 def check_expense_limit(df, limit=10000):
-    current_month = datetime.now().strftime('%m')
-    if limit <=  df[(df['Type'] == 'expense') & (df['Date'].month == current_month)] ['Amount'].sum():
-        print('Your spending limit is too high, please cut your expenses!!!')
+    current_month = datetime.now().month
+    current_month_expenses_sum = df[
+        (df['Type'] == 'expense') &
+        (df['Date'].dt.month == current_month)]['Amount'].sum()
+    if current_month_expenses_sum >= limit:
+        print('Warning: Your spending for this month is too high!')
 
+
+generate_randome_data(rows = 100)
+df = load_data()
+show_category_report(df)
+show_top_expenses(df)
+show_recent_data(df)
+show_means(df)
+check_expense_limit(df, limit=10000)
