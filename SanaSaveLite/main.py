@@ -40,8 +40,8 @@ def generate_randome_data(rows = 100):
     with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(all_data)
-        print('transactions are added!') 
-        
+        print('transactions are added!')
+    
 
 '''
 def add_transactions():
@@ -66,28 +66,45 @@ def add_transactions():
 
 add_transactions()
 '''
-generate_randome_data()
-
-df = pd.read_csv('transactions.csv')
 
 
-def show_category_report():
+def load_data():
+    try:
+        df = pd.read_csv(filename)
+        df['Date'] = pd.to_datetime(df['Date'])
+        return df
+    except FileNotFoundError:
+        print(f"Error: {filename} not found. Please generate data first (Option 1).")
+        return pd.DataFrame(columns=["Date", "Type", "Amount", "Category"])
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        return pd.DataFrame(columns=["Date", "Type", "Amount", "Category"])
+
+
+def show_category_report(df):
+    if df.empty:
+        print("No data available to generate report.")
+        return
+    
     category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
     print("\n📊 Report by Category:")
     print(category_report)
 
 
-def show_top_expenses():
-    top_expenses = df[df['Type'] == 'expense'].sort_values(by='Amount', ascending=False).head(5)
+def show_top_expenses(df):
+    if df.empty:
+        print("No data available to show top expenses.")
+        return
+    expenses_df = df[df['Type'] == 'expense']
+    top_expenses = expenses_df.sort_values(by='Amount', ascending=False).head(5)
     print("\n💸 Top Expenses:")
-    print(top_expenses[['Date', 'Category', 'Amount', 'Comment']])
+    print(top_expenses[['Date', 'Category', 'Amount']])
 
 
-def show_recent_data():
-    today = pd.to_datetime(datetime.now())
+def show_recent_data(df):
+    today = pd.to_datetime(datetime.now().date())
     last_week_data = today - pd.Timedelta(days=7)
     last_month_data = today - pd.Timedelta(days=30)
-    df['Date'] = pd.to_datetime(df['Date']) 
     df_last_week = df[df['Date'] >= last_week_data]
     df_last_month = df[df['Date'] >= last_month_data]
     week_income = df_last_week[df_last_week['Type'] == 'income']['Amount'].sum()
@@ -98,17 +115,18 @@ def show_recent_data():
     print(f"📅 Last 30 days:\n   Income: {month_income} | Expense: {month_expense}")
 
 
-def show_means():
-    mean_value_income = df[df['Type'] == 'income']['Amount'].sum()/len(df[df['Type'] == 'income'])
+def show_means(df):
+    if df.empty:
+        print("No data available to calculate means.")
+        return
+    mean_value_income = df[df['Type'] == 'income']['Amount'].mean() 
     print(f'your average income: {mean_value_income}')
-    mean_value_expense = df[df['Type'] == 'expense']['Amount'].sum()/len(df[df['Type'] == 'expense'])
+    mean_value_expense = df[df['Type'] == 'expense']['Amount'].mean()
     print(f'your average expense: {mean_value_expense}')
 
 
-
-exceeded_expense = 10000
-if exceeded_expense <=  df[df['Type'] == 'expense']['Amount'].sum():
-    print('Your spending limit is too high, please cut your expenses!!!')
-
-show_recent_data() 
+def check_expense_limit(df, limit=10000):
+    current_month = datetime.now().strftime('%m')
+    if limit <=  df[(df['Type'] == 'expense') & (df['Date'].month == current_month)] ['Amount'].sum():
+        print('Your spending limit is too high, please cut your expenses!!!')
 
