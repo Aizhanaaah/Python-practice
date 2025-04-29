@@ -16,7 +16,7 @@ if not os.path.exists(filename):
     df.to_csv(filename, index=False)
 
 
-def generate_randome_data(rows = 100):
+def generate_random_data(rows = 100):
     CategoriesIncome = ['salary', 'freelance', 'scholarhsip', 'business', 'gift', 'rental income', 'stock divident']
     CategoriesExpense = ['grocery', 'charity', 'education', 'entertainment', 'rent', 'utilities', 'health care', 'taxes', 'transportation', 'self care']
     start_date = datetime(2020, 1, 1)
@@ -40,29 +40,33 @@ def generate_randome_data(rows = 100):
         print('transactions are added!')
     
 
-'''
+
 def add_transactions():
-    date = datetime.now().strftime('%Y-%m-%d')
-    t_type = input("Income or Expense? ").lower()
-    if t_type not in ('income', 'expense'):
-        raise ValueError("'type' has to be either 'income' or 'expense'")
-    if t_type == 'income':
-        amount = float(input('What is your income?'))
-        category = input('What is the source? ')
-    elif t_type == 'expense':
-        amount = float(input('What is your expense? ')) 
-        category = input('What is the category? ')
-    if amount <= 0:
-        raise ValueError("'amount' has to be a positive number")
-    comment = input('Add notes (optional)')
-    with open(filename, mode='a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([date, t_type, amount, category, comment])
-        print('transactions are added!')
+    add = input('Do you need to add transactions? ')
+    if add.lower() == 'yes':
+        date = datetime.now().strftime('%Y-%m-%d')
+        t_type = input("Income or Expense? ").lower()
+        if t_type not in ('income', 'expense'):
+            raise ValueError("'type' has to be either 'income' or 'expense'")
+        if t_type == 'income':
+            amount = float(input('What is your income?'))
+            category = input('What is the source? ')
+        elif t_type == 'expense':
+            amount = float(input('What is your expense? ')) 
+            category = input('What is the category? ')
+        if amount <= 0:
+            raise ValueError("'amount' has to be a positive number")
+        comment = input('Add notes (optional)')
+        with open(filename, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([date, t_type, amount, category, comment])
+            print('transactions are added!')
+    elif add.lower() == 'no':
+        print('sure!')
+    else:
+        print('non-valid answer')
 
 
-add_transactions()
-'''
 
 
 def load_data():
@@ -131,10 +135,12 @@ def check_expense_limit(df, limit=10000):
         print('Warning: Your spending for this month is too high!')
 
 
-generate_randome_data(rows = 100)
+
+generate_random_data(rows = 100)
 df = load_data()
 show_category_report(df)
 show_top_expenses(df)
 show_recent_data(df)
 show_means(df)
 check_expense_limit(df, limit=10000)
+add_transactions()
