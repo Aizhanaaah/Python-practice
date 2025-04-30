@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random 
 
-saving_jar = 0
+
 
 filename = 'transactions.csv'
 
@@ -42,6 +42,7 @@ def generate_random_data(rows = 100):
 
 
 def add_transactions():
+    saving_jar = 0
     add = input('Do you need to add transactions? ')
     if add.lower() == 'yes':
         date = datetime.now().strftime('%Y-%m-%d')
@@ -50,11 +51,11 @@ def add_transactions():
             raise ValueError("'type' has to be either 'income' or 'expense'")
         if t_type == 'income':
             amount = float(input('What is your income?'))
-            amount_for_saving = amount * 0,25
+            amount_for_saving = amount*0.25
             category = input('What is the source? ')
             if category == 'salary':
-                saving_jar+=amount_for_saving
-                amount - amount_for_saving
+                saving_jar = saving_jar + amount_for_saving
+                amount = amount - amount_for_saving
         elif t_type == 'expense':
             amount = float(input('What is your expense? ')) 
             category = input('What is the category? ')
@@ -69,8 +70,7 @@ def add_transactions():
         print('sure!')
     else:
         print('non-valid answer')
-
-
+    return saving_jar
 
 
 def load_data():
@@ -147,5 +147,5 @@ show_top_expenses(df)
 show_recent_data(df)
 show_means(df)
 check_expense_limit(df, limit=10000)
-add_transactions()
+saving_jar = add_transactions()
 print(f'your savings are: {saving_jar}')
