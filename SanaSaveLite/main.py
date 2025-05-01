@@ -112,12 +112,13 @@ def show_recent_data(df):
     last_month_data = today - pd.Timedelta(days=30)
     df_last_week = df[df['Date'] >= last_week_data]
     df_last_month = df[df['Date'] >= last_month_data]
-    week_income = df_last_week[df_last_week['Type'] == 'income']['Amount'].sum()
-    week_expense = df_last_week[df_last_week['Type'] == 'expense']['Amount'].sum()
-    month_income = df_last_month[df_last_month['Type'] == 'income']['Amount'].sum()
-    month_expense = df_last_month[df_last_month['Type'] == 'expense']['Amount'].sum()
-    print(f"📅 Last 7 days:\n   Income: {week_income} | Expense: {week_expense}")
-    print(f"📅 Last 30 days:\n   Income: {month_income} | Expense: {month_expense}")
+    week_income = df_last_week[df_last_week['Type'] == 'income']['Amount'].to_numpy()
+    week_expense = df_last_week[df_last_week['Type'] == 'expense']['Amount'].to_numpy()
+    month_income = df_last_month[df_last_month['Type'] == 'income']['Amount'].to_numpy()
+    month_expense = df_last_month[df_last_month['Type'] == 'expense']['Amount'].to_numpy()
+    print(f"📅 Last 7 days:\n   Income: {np.sum(week_income)} | Expense: {np.sum(week_expense)}")
+    print(f"📅 Last 30 days:\n   Income: {np.sum(month_income)} | Expense: {np.sum(month_expense)}")
+
 
 
 def show_means(df):
