@@ -91,9 +91,9 @@ def show_category_report(df):
         print("No data available to generate report.")
         return
     
-    category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
+    category_report = df.groupby(['Type', 'Category'])['Amount'].to_numpy()
     print("\n📊 Report by Category:")
-    print(category_report)
+    print(np.sum(category_report))
 
 
 def show_top_expenses(df):
@@ -120,7 +120,6 @@ def show_recent_data(df):
     print(f"📅 Last 30 days:\n   Income: {np.sum(month_income)} | Expense: {np.sum(month_expense)}")
 
 
-
 def show_means(df):
     if df.empty:
         print("No data available to calculate means.")
@@ -135,8 +134,8 @@ def check_expense_limit(df, limit=10000):
     current_month = datetime.now().month
     current_month_expenses_sum = df[
         (df['Type'] == 'expense') &
-        (df['Date'].dt.month == current_month)]['Amount'].sum()
-    if current_month_expenses_sum >= limit:
+        (df['Date'].dt.month == current_month)]['Amount'].to_numpy()
+    if np.sum(current_month_expenses_sum) >= limit:
         print('Warning: Your spending for this month is too high!')
 
 
