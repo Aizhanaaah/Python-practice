@@ -51,9 +51,9 @@ def add_transactions():
             raise ValueError("'type' has to be either 'income' or 'expense'")
         if t_type == 'income':
             amount = float(input('What is your income?'))
-            amount_for_saving = amount*0.25
             category = input('What is the source? ')
             if category == 'salary':
+                amount_for_saving = amount*0.25
                 saving_jar = saving_jar + amount_for_saving
                 amount = amount - amount_for_saving
         elif t_type == 'expense':
