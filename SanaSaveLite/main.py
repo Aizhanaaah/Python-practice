@@ -92,9 +92,29 @@ def show_category_report(df):
         return
     
     category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
-    print("\n📊 Report by Category:")
+    print("\nReport by Category:")
     print(category_report)
 
+    if not category_report.empty:
+        
+        income_data = category_report['income'] if 'income' in category_report.index.levels[0] else pd.Series()
+        expense_data = category_report['expense'] if 'expense' in category_report.index.levels[0] else pd.Series()
+
+        if not income_data.empty or not expense_data.empty:
+            fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+
+            if not income_data.empty:
+                axes[0].pie(income_data, labels=income_data.index, autopct='%1.1f%%', startangle=140)
+                axes[0].set_title('Income Categories')
+
+            if not expense_data.empty:
+                axes[1].pie(expense_data, labels=expense_data.index, autopct='%1.1f%%', startangle=140)
+                axes[1].set_title('Expense Categories')
+
+            plt.tight_layout()
+            plt.show()
+        else:
+            print("No data to plot.")
 
 
 def show_top_expenses(df):
@@ -103,7 +123,7 @@ def show_top_expenses(df):
         return
     expenses_df = df[df['Type'] == 'expense']
     top_expenses = expenses_df.sort_values(by='Amount', ascending=False).head(5)
-    print("\n💸 Top Expenses:")
+    print("\nTop Expenses:")
     print(top_expenses[['Date', 'Category', 'Amount']])
 
 
