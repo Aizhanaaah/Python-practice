@@ -64,7 +64,7 @@ def add_transactions():
         comment = input('Add notes (optional)')
         with open(filename, mode='a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([date, t_type, amount, category, comment])
+            writer.writerow([date, t_type, amount, category])
             print('transactions are added!')
     elif add.lower() == 'no':
         print('sure!')
@@ -91,9 +91,10 @@ def show_category_report(df):
         print("No data available to generate report.")
         return
     
-    category_report = df.groupby(['Type', 'Category'])['Amount'].to_numpy()
+    category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
     print("\n📊 Report by Category:")
-    print(np.sum(category_report))
+    print(category_report)
+
 
 
 def show_top_expenses(df):
@@ -116,8 +117,8 @@ def show_recent_data(df):
     week_expense = df_last_week[df_last_week['Type'] == 'expense']['Amount'].to_numpy()
     month_income = df_last_month[df_last_month['Type'] == 'income']['Amount'].to_numpy()
     month_expense = df_last_month[df_last_month['Type'] == 'expense']['Amount'].to_numpy()
-    print(f"📅 Last 7 days:\n   Income: {np.sum(week_income)} | Expense: {np.sum(week_expense)}")
-    print(f"📅 Last 30 days:\n   Income: {np.sum(month_income)} | Expense: {np.sum(month_expense)}")
+    print(f"📅 Last 7 days:\n   Income: {round(np.sum(week_income), 2)} | Expense: {round(np.sum(week_expense), 2)}")
+    print(f"📅 Last 30 days:\n   Income: {round(np.sum(month_income), 2)} | Expense: {round(np.sum(month_expense), 2)}")
 
 
 def show_means(df):
