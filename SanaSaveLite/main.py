@@ -29,7 +29,7 @@ def generate_random_data(rows = 100):
             date = (start_date + timedelta(days=random_days)).strftime('%Y-%m-%d')
 
             type_ = random.choice(['income', 'expense'])
-            amount = round(random.uniform(1, 1000000), 2).to_numpy()
+            amount = round(random.uniform(1, 1000000), 2)
 
             if type_ == 'income':
                 category = random.choice(CategoriesIncome)
@@ -101,7 +101,7 @@ def show_category_report(df):
         expense_data = category_report['expense'] if 'expense' in category_report.index.levels[0] else pd.Series()
 
         if not income_data.empty or not expense_data.empty:
-            axes = plt.subplots(1, 2, figsize=(14, 7))
+            fig, axes = plt.subplots(1, 2, figsize=(14, 7))
 
             if not income_data.empty:
                 axes[0].pie(income_data, labels=income_data.index, autopct='%1.1f%%', startangle=140)
@@ -161,7 +161,7 @@ def check_expense_limit(df, limit=10000):
 
 
 
-#generate_random_data(rows = 100)
+generate_random_data(rows = 100)
 df = load_data()
 show_category_report(df)
 show_top_expenses(df)
