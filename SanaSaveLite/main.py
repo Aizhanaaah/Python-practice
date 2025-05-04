@@ -5,7 +5,19 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import random 
+import requests
+from dotenv import load_dotenv
 
+
+load_dotenv(dotenv_path='touch.env')
+token = os.getenv("WISE_API_TOKEN")
+print('the tokens are: ')
+print(token)
+headers = {"Authorization": f"Bearer {token}"}
+response = requests.get("https://api.transferwise.com/v1/profiles", headers=headers)
+profiles = response.json()
+profile_id = next(p['id'] for p in profiles if p['type'] == 'personal')
+print("Your Profile ID:", profile_id)
 
 
 filename = 'transactions.csv'
