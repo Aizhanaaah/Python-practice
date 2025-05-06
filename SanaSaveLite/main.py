@@ -7,12 +7,66 @@ import numpy as np
 import random 
 import requests
 from dotenv import load_dotenv
+import json
 
 
 load_dotenv(dotenv_path='touch.env')
 token = os.getenv("WISE_API_TOKEN")
 print('the tokens are: ')
 print(token)
+headers = {"Authorization": f"Bearer {token}"}
+
+
+response = requests.get("https://api.transferwise.com/v1/profiles", headers=headers)
+profiles = response.json()
+print("Profiles:", profiles)
+
+
+profile_id = next(p['id'] for p in profiles if p['type'] == 'personal')
+print("Your Profile ID:", profile_id)
+
+
+params = {
+    "types": "STANDARD"  # or "SAVINGS" if applicable
+}
+response = requests.get(
+    f"https://api.transferwise.com/v4/profiles/{profile_id}/balances",
+    headers=headers,
+    params=params
+)
+balances = response.json()
+print("Balances:", balances)
+
+
+
+#################################################
+print(json.dumps(balances, indent=2))
+
+# Try this instead of statement.json:
+response = requests.get(
+    f"https://api.transferwise.com/v1/borderless-accounts",
+    headers=headers
+)
+borderless_accounts = response.json()
+print(json.dumps(borderless_accounts, indent=2))
+
+account_id = borderless_accounts[0]['id']
+params = {
+    "type": "ALL",
+    "from": "2020-01-01T00:00:00Z",
+    "to": "2025-12-31T23:59:59Z"
+}
+response = requests.get(
+    f"https://api.transferwise.com/v1/borderless-accounts/{account_id}/transactions",
+    headers=headers,
+    params=params
+)
+
+transactions = response.json()
+print(json.dumps(transactions, indent=2))
+
+
+
 
 
 
@@ -100,7 +154,7 @@ def show_category_report(df):
         return
     
     category_report = df.groupby(['Type', 'Category'])['Amount'].sum()
-    print("\n📊 Report by Category:")
+    print("\nReport by Category:")
     print(category_report)
 
     if not category_report.empty:
@@ -131,7 +185,7 @@ def show_top_expenses(df):
         return
     expenses_df = df[df['Type'] == 'expense']
     top_expenses = expenses_df.sort_values(by='Amount', ascending=False).head(5)
-    print("\n💸 Top Expenses:")
+    print("\nTop Expenses:")
     print(top_expenses[['Date', 'Category', 'Amount']])
 
 
@@ -145,8 +199,8 @@ def show_recent_data(df):
     week_expense = df_last_week[df_last_week['Type'] == 'expense']['Amount'].to_numpy()
     month_income = df_last_month[df_last_month['Type'] == 'income']['Amount'].to_numpy()
     month_expense = df_last_month[df_last_month['Type'] == 'expense']['Amount'].to_numpy()
-    print(f"📅 Last 7 days:\n   Income: {round(np.sum(week_income), 2)} | Expense: {round(np.sum(week_expense), 2)}")
-    print(f"📅 Last 30 days:\n   Income: {round(np.sum(month_income), 2)} | Expense: {round(np.sum(month_expense), 2)}")
+    print(f"Last 7 days:\n   Income: {round(np.sum(week_income), 2)} | Expense: {round(np.sum(week_expense), 2)}")
+    print(f"Last 30 days:\n   Income: {round(np.sum(month_income), 2)} | Expense: {round(np.sum(month_expense), 2)}")
 
 
 def show_means(df):
@@ -159,17 +213,23 @@ def show_means(df):
     print(f'your average expense: {round(mean_value_expense, 2)}')
 
 
-def check_expense_limit(df, limit=10000):
+def check_expense_limit(df, limit=1000000):
     current_month = datetime.now().month
     current_month_expenses_sum = df[
-        (df['Type'] == 'expense') &
-        (df['Date'].dt.month == current_month)]['Amount'].to_numpy()
+        (df['Type'] == 'expense') & (df['Date'].dt.month == current_month)]['Amount'].to_numpy()
     if np.sum(current_month_expenses_sum) >= limit:
         print('Warning: Your spending for this month is too high!')
 
 
+def net_worth_of_year(df):
+    current_year = datetime.now().year
+    year_income = df[(df['Date'].dt.year == current_year) and (df['Type'] == 'income')]['Amount'].to_numpy()
+    year_expense = df[(df['Date'].dt.year == current_year) and (df['Type'] == 'expense')]['Amount'].to_numpy()
+    for i in range(0, 12):
+        df[(df['Date'].dt.month == i) and (df['Type'] == 'income')]['Amount'].to_numpy()
 
-generate_random_data(rows = 100)
+
+#generate_random_data(rows = 100)
 df = load_data()
 show_category_report(df)
 show_top_expenses(df)
