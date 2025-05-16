@@ -12,70 +12,78 @@ import json
 
 load_dotenv(dotenv_path='touch.env')
 token = os.getenv("WISE_API_TOKEN")
-print('the tokens are: ')
-print(token)
 headers = {"Authorization": f"Bearer {token}"}
 
-
+# Get profile ID
 response = requests.get("https://api.transferwise.com/v1/profiles", headers=headers)
-profiles = response.json()
-print("Profiles:", profiles)
+try:
+    profiles = response.json()
+except json.JSONDecodeError:
+    with open("wise_debug.log", "a") as log:
+        log.write("Error decoding profiles response: " + response.text + "\n")
+    print("❌ Failed to decode profiles response. Check wise_debug.log.")
+    profiles = []
 
+profile_id = next((p['id'] for p in profiles if p['type'] == 'personal'), None)
 
-profile_id = next(p['id'] for p in profiles if p['type'] == 'personal')
-print("Your Profile ID:", profile_id)
-
-
-params = {
-    "types": "STANDARD"  # or "SAVINGS" if applicable
-}
-response = requests.get(
-    f"https://api.transferwise.com/v4/profiles/{profile_id}/balances",
-    headers=headers,
-    params=params
-)
-balances = response.json()
-print("Balances:", balances)
-
-
-
-#################################################
-print(json.dumps(balances, indent=2))
-
-# Try this instead of statement.json:
-response = requests.get(
-    f"https://api.transferwise.com/v1/borderless-accounts",
-    headers=headers
-)
-borderless_accounts = response.json()
-print(json.dumps(borderless_accounts, indent=2))
-
-account_id = borderless_accounts[0]['id']
-params = {
-    "type": "ALL",
-    "from": "2020-01-01T00:00:00Z",
-    "to": "2025-12-31T23:59:59Z"
-}
-response = requests.get(
-    f"https://api.transferwise.com/v1/borderless-accounts/{account_id}/transactions",
-    headers=headers,
-    params=params
-)
-
-transactions = response.json()
-print(json.dumps(transactions, indent=2))
-
-
-
-
-
+# Get borderless accounts
+borderless_accounts = []
+if profile_id:
+    response = requests.get(f"https://api.transferwise.com/v1/borderless-accounts?profileId={profile_id}", headers=headers)
+    try:
+        borderless_accounts = response.json()
+    except json.JSONDecodeError:
+        with open("wise_debug.log", "a") as log:
+            log.write("Error decoding borderless accounts response: " + response.text + "\n")
+        print("❌ Failed to decode borderless accounts response. Check wise_debug.log.")
 
 filename = 'transactions.csv'
-
-
 if not os.path.exists(filename):
     df = pd.DataFrame(columns=["Date", "Type", "Amount", "Category"])
     df.to_csv(filename, index=False)
+
+# === Extracting and saving transaction data from Wise ===
+if isinstance(borderless_accounts, list) and borderless_accounts:
+    account_id = borderless_accounts[0]['id']
+    params = {
+        "type": "ALL",
+        "from": "2020-01-01T00:00:00Z",
+        "to": "2025-12-31T23:59:59Z"
+    }
+    response = requests.get(
+        f"https://api.transferwise.com/v1/borderless-accounts/{account_id}/transactions",
+        headers=headers,
+        params=params
+    )
+    try:
+        transactions = response.json()
+    except json.JSONDecodeError:
+        with open("wise_debug.log", "a") as log:
+            log.write("Error decoding transactions response: " + response.text + "\n")
+        print("❌ Failed to decode transactions response. Check wise_debug.log.")
+        transactions = []
+
+    if isinstance(transactions, list):
+        with open(filename, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            for tx in transactions:
+                if not isinstance(tx, dict):
+                    continue
+                date = tx.get('date', '')[:10]
+                amount = tx.get('amount', {}).get('value', 0)
+                tx_type = 'income' if amount > 0 else 'expense'
+                description = tx.get('details', {}).get('description', '') or 'unknown'
+                writer.writerow([date, tx_type, abs(amount), description])
+        print('✅ Wise transactions have been saved to CSV.')
+    else:
+        with open("wise_debug.log", "a") as log:
+            log.write("Unexpected transactions response format: " + str(transactions) + "\n")
+        print("⚠️ Transactions response is not a list. Check wise_debug.log.")
+else:
+    print("⚠️ No borderless accounts found.")
+
+
+
 
 
 def generate_random_data(rows = 100):
@@ -227,6 +235,10 @@ def net_worth_of_year(df):
     year_expense = df[(df['Date'].dt.year == current_year) and (df['Type'] == 'expense')]['Amount'].to_numpy()
     for i in range(0, 12):
         df[(df['Date'].dt.month == i) and (df['Type'] == 'income')]['Amount'].to_numpy()
+
+
+
+print(f"https://api.transferwise.com/v1/borderless-accounts/{account_id}/transactions")
 
 
 #generate_random_data(rows = 100)
